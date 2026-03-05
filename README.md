@@ -13,16 +13,8 @@ pip install -r requirements.txt
 ## 配置大模型 API（默认启用）
 ```bash
 export LLM_API_KEY="你的API_KEY"
-export LLM_BASE_URL="https://api.openai.com/v1"
-export LLM_MODEL="gpt-4.1-mini"
-export LLM_TIMEOUT_SECONDS="90"
-export LLM_TEMPERATURE="0.7"
-export LLM_MAX_RETRIES="4"
-export LLM_RETRY_BASE_SECONDS="2.0"
-export LLM_RETRY_MAX_SECONDS="30"
-export LLM_MAX_CONCURRENCY="1"
-export LLM_SOURCE_SCENES_PER_EPISODE="6"
-export LLM_SOURCE_EXCERPT_CHARS="72"
+export LLM_BASE_URL="xxxxxxxxxx"
+export LLM_MODEL="模型名称"
 ```
 
 ## 启动 API
@@ -51,45 +43,6 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 - 导出双轨：
   - `internal_production.json`：完整结构化、可追溯（对内）
   - `arena_submission.txt`：纯阅读稿（对外评审）
-
-## API 示例
-
-### 1) 直接粘贴小说文本
-```bash
-curl -X POST "http://127.0.0.1:8000/novel/ingest_text" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "title": "失控直播间",
-    "content": "这里粘贴小说原文..."
-  }'
-```
-
-### 2) 上传本地文件（推荐用CLI自动读取）
-```bash
-python cli.py ingest-file --file /absolute/path/novel.txt --title "失控直播间"
-```
-
-### 3) 基于 project_id 批量生成（无需 topic）
-```bash
-curl -X POST "http://127.0.0.1:8000/generate_batch" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "project_id": "proj_xxxxx",
-    "constraints": {
-      "genre": "都市悬疑",
-      "emotion": "压迫",
-      "conflict_level": 8,
-      "rhythm_speed": 7,
-      "episodes": 5,
-      "episode_duration": 120,
-      "intensity_curve_style": "递进"
-    },
-    "batch_size": 5,
-    "use_llm": true,
-    "prompt_version": "v1.0.0",
-    "strategy_version": "v1.0.0"
-  }'
-```
 
 ### 3.1) 流式生成进度（推荐UI使用）
 ```bash
@@ -143,6 +96,3 @@ python cli.py export --project-id proj_xxxxx --format bundle
 - 每个样本结果包含 `evaluation.agent_reviews`、`optimization_trace`，并可按镜头追溯原文来源。
 - 镜头级追溯字段：`shots[].source_scene_ref`、`shots[].source_excerpt`、`shots[].adaptation_note`。
 - 所有 API 返回结构化 JSON。
-# Storyboard-Splitting-Tool
-# Storyboard-Splitting-Tool
-# Storyboard-Splitting-Tool
