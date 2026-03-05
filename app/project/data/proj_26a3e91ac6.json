@@ -1,0 +1,52 @@
+{
+  "project_id": "proj_26a3e91ac6",
+  "created_at": "2026-03-04T05:48:30.906233",
+  "updated_at": "2026-03-04T05:48:30.906910",
+  "params": {
+    "topic": "t｜核心冲突：目标与阻碍持续升级的对抗",
+    "constraints": {
+      "genre": "都市悬疑",
+      "emotion": "紧张",
+      "conflict_level": 7,
+      "rhythm_speed": 6,
+      "episodes": 5,
+      "episode_duration": 120,
+      "intensity_curve_style": "递进"
+    },
+    "prompt_version": "v1.0.0",
+    "strategy_version": "v1.0.0"
+  },
+  "samples": [],
+  "ranking": [],
+  "generation_logs": [],
+  "novel": {
+    "title": "t",
+    "content": "第一章\n他走进房间。\n她回头看他。",
+    "chapters": [
+      {
+        "title": "第一章",
+        "text": "他走进房间。\n她回头看他。",
+        "chapter_id": 1,
+        "scenes": [
+          {
+            "scene_no": 1,
+            "ref": "C1-S1",
+            "summary": "他走进房间。 她回头看他。",
+            "raw": "他走进房间。\n她回头看他。",
+            "excerpt": "他走进房间。 她回头看他。"
+          }
+        ]
+      }
+    ],
+    "segments": [
+      "他走进房间。\n她回头看他。"
+    ],
+    "story_map": {
+      "core_conflict": "目标与阻碍持续升级的对抗",
+      "opening_hook": "他走进房间。 她回头看他。",
+      "closing_hook": "他走进房间。 她回头看他。",
+      "chapter_count": 1
+    },
+    "content_chars": 17
+  }
+}

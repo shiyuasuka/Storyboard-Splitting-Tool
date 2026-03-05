@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>小说分镜拆分工作台</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-1: #f8f4ee;
+      --bg-2: #ede3d4;
+      --panel: #fffdf8;
+      --ink: #201c19;
+      --muted: #6a645d;
+      --brand: #b14f31;
+      --brand-2: #2e5f5a;
+      --ok: #2a7a45;
+      --danger: #b83d3d;
+      --line: #dfd5c4;
+      --shadow: 0 14px 36px rgba(58, 45, 33, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Space Grotesk", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 8%, #ffe8cb 0%, rgba(255,232,203,0) 32%),
+        radial-gradient(circle at 86% 14%, #d8efe8 0%, rgba(216,239,232,0) 35%),
+        linear-gradient(135deg, var(--bg-1), var(--bg-2));
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+      display: grid;
+      gap: 16px;
+    }
+
+    .hero, .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 20px;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-family: "Noto Serif SC", serif;
+      font-size: 30px;
+      letter-spacing: .4px;
+    }
+
+    .hero p {
+      margin: 8px 0 0;
+      color: var(--muted);
+    }
+
+    .hero .meta {
+      margin-top: 10px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 16px;
+    }
+
+    .card {
+      padding: 16px;
+      animation: rise .45s ease;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      color: var(--brand-2);
+    }
+
+    label {
+      display: block;
+      margin: 8px 0 6px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font: inherit;
+      background: #fff;
+    }
+
+    textarea {
+      min-height: 340px;
+      resize: vertical;
+      line-height: 1.55;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .btns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 16px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .15s ease, opacity .15s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button:disabled { opacity: .6; cursor: not-allowed; }
+
+    .primary { background: var(--brand); color: #fff; }
+    .secondary { background: var(--brand-2); color: #fff; }
+
+    .status {
+      margin-top: 10px;
+      min-height: 40px;
+      border: 1px dashed var(--line);
+      border-radius: 10px;
+      background: #fff;
+      padding: 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .ok { color: var(--ok); }
+    .err { color: var(--danger); }
+
+    .output {
+      background: #1e1f22;
+      color: #d9eee2;
+      border-radius: 16px;
+      padding: 14px;
+      min-height: 300px;
+      max-height: 560px;
+      overflow: auto;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .tips {
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 980px) {
+      .grid { grid-template-columns: 1fr; }
+      .row { grid-template-columns: 1fr; }
+      textarea { min-height: 240px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <h1>小说直连分镜拆分工具</h1>
+      <p>把短篇小说原文贴进来，直接生成 5 篇可制作的准分镜剧本。系统自动完成：入库、生成、反思迭代、排序、双文件导出。</p>
+      <div class="meta">当前服务：<span id="origin"></span> ｜ 当前项目：<span id="currentProject">未创建</span></div>
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <h2>小说原文</h2>
+        <label>作品标题</label>
+        <input id="novelTitle" value="未命名小说" />
+
+        <label>短篇小说正文</label>
+        <textarea id="novelContent" placeholder="粘贴完整短篇小说原文（建议一次性粘贴完整文本）"></textarea>
+
+        <div class="btns">
+          <button id="fillDemoBtn" class="secondary">填入示例</button>
+          <button id="ingestOnlyBtn" class="secondary">仅入库</button>
+        </div>
+        <div id="ingestStatus" class="status">等待输入小说原文...</div>
+      </div>
+
+      <div class="card">
+        <h2>一键生成</h2>
+
+        <div class="row">
+          <div>
+            <label>风格档位</label>
+            <select id="presetLevel">
+              <option value="cinematic">电影化（默认）</option>
+              <option value="fast">快节奏</option>
+              <option value="warm">温情向</option>
+            </select>
+          </div>
+          <div>
+            <label>导出格式</label>
+            <select id="exportFormat">
+              <option value="bundle">bundle（双文件）</option>
+              <option value="internal_json">internal_production.json</option>
+              <option value="arena_txt">arena_submission.txt</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>集数</label>
+            <input id="episodes" type="number" min="1" max="24" value="5" />
+          </div>
+          <div>
+            <label>单集时长（秒）</label>
+            <input id="episodeDuration" type="number" min="30" max="1800" value="120" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>样本数</label>
+            <input value="5（固定）" disabled />
+          </div>
+          <div>
+            <label>生成模式</label>
+            <input value="LLM API（固定）" disabled />
+          </div>
+        </div>
+
+        <div class="btns">
+          <button id="generateBtn" class="primary">一键生成并实时查看</button>
+          <button id="exportBtn" class="secondary">导出当前项目</button>
+        </div>
+        <div id="genStatus" class="status">等待开始生成...</div>
+        <div class="tips">提示：点击“一键生成”后，会自动先入库小说，再启动流式生成。</div>
+      </div>
+
+      <div class="output" style="grid-column: span 2;">
+        <pre id="output">等待操作...</pre>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const output = $("output");
+    let currentProjectId = null;
+
+    $("origin").textContent = window.location.origin;
+
+    function setStatus(id, msg, ok = true) {
+      const el = $(id);
+      el.className = `status ${ok ? "ok" : "err"}`;
+      el.textContent = msg;
+    }
+
+    function setProjectId(pid) {
+      currentProjectId = pid || null;
+      $("currentProject").textContent = currentProjectId || "未创建";
+    }
+
+    async function postJSON(path, payload) {
+      const resp = await fetch(path, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data.detail || JSON.stringify(data));
+      return data;
+    }
+
+    async function getJSON(path) {
+      const resp = await fetch(path);
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data.detail || JSON.stringify(data));
+      return data;
+    }
+
+    async function postNDJSONStream(path, payload, onEvent) {
+      const resp = await fetch(path, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!resp.ok) {
+        const txt = await resp.text();
+        throw new Error(txt || `HTTP ${resp.status}`);
+      }
+      if (!resp.body) {
+        throw new Error("浏览器不支持流式响应");
+      }
+
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+      let buffer = "";
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+        for (const line of lines) {
+          const text = line.trim();
+          if (!text) continue;
+          try {
+            onEvent(JSON.parse(text));
+          } catch (_) {}
+        }
+      }
+
+      const tail = buffer.trim();
+      if (tail) {
+        try {
+          onEvent(JSON.parse(tail));
+        } catch (_) {}
+      }
+    }
+
+    function eventToText(evt) {
+      if (!evt || !evt.type) return "";
+      if (evt.type === "progress") {
+        const d = evt.data || {};
+        const stage = d.stage || "";
+        if (stage === "batch_started") return `批次开始：共 ${d.batch_size} 篇样本`;
+        if (stage === "sample_started") return `样本 ${d.sample_index} 生成中...`;
+        if (stage === "sample_output") return `样本 ${d.sample_index} 已完成`;
+        if (stage === "ranking_completed") return "五篇样本排名完成";
+        if (stage === "batch_completed") return `全部完成：${d.sample_count} 篇样本`;
+        return "";
+      }
+      if (evt.type === "error") return `错误：${evt.error || "未知错误"}`;
+      if (evt.type === "result") return "最终结果已返回";
+      if (evt.type === "end") return "流结束";
+      return "";
+    }
+
+    async function ingestNovel() {
+      const content = $("novelContent").value.trim();
+      const title = $("novelTitle").value.trim() || "未命名小说";
+      if (!content) {
+        setStatus("ingestStatus", "请先粘贴小说原文", false);
+        return null;
+      }
+      setStatus("ingestStatus", "小说入库中...");
+      const payload = { project_id: currentProjectId, title, content };
+      const data = await postJSON("/novel/ingest_text", payload);
+      setProjectId(data.project_id);
+      setStatus("ingestStatus", `入库成功，project_id=${data.project_id}`);
+      return data;
+    }
+
+    $("fillDemoBtn").onclick = () => {
+      $("novelTitle").value = "失控直播间";
+      $("novelContent").value = "第一章 夜雨。\n林岚在直播间里看到了自己昨天才搬走的公寓门牌。\n镜头里突然出现程野，他说：这不是bug，是有人在倒计时。";
+    };
+
+    $("ingestOnlyBtn").onclick = async () => {
+      try {
+        const data = await ingestNovel();
+        if (data) {
+          output.textContent = JSON.stringify(data, null, 2);
+        }
+      } catch (err) {
+        setStatus("ingestStatus", `入库失败: ${err.message}`, false);
+      }
+    };
+
+    $("generateBtn").onclick = async () => {
+      const preset = $("presetLevel").value;
+      const presetMap = {
+        cinematic: { genre: "现实主义短剧", emotion: "克制张力", conflict_level: 7, rhythm_speed: 6, intensity_curve_style: "递进" },
+        fast: { genre: "都市悬疑短剧", emotion: "紧迫", conflict_level: 8, rhythm_speed: 8, intensity_curve_style: "波浪式" },
+        warm: { genre: "现实温情短剧", emotion: "温暖", conflict_level: 6, rhythm_speed: 5, intensity_curve_style: "线性" },
+      };
+      const presetCfg = presetMap[preset] || presetMap.cinematic;
+
+      try {
+        $("generateBtn").disabled = true;
+        setStatus("genStatus", "准备中：先自动入库小说...");
+
+        await ingestNovel();
+        if (!currentProjectId) {
+          throw new Error("小说入库未返回 project_id");
+        }
+
+        const payload = {
+          topic: null,
+          project_id: currentProjectId,
+          constraints: {
+            genre: presetCfg.genre,
+            emotion: presetCfg.emotion,
+            conflict_level: presetCfg.conflict_level,
+            rhythm_speed: presetCfg.rhythm_speed,
+            episodes: Number($("episodes").value),
+            episode_duration: Number($("episodeDuration").value),
+            intensity_curve_style: presetCfg.intensity_curve_style,
+          },
+          batch_size: 5,
+          use_llm: true,
+          prompt_version: "v1.0.0",
+          strategy_version: "v1.0.0",
+        };
+
+        setStatus("genStatus", "生成中（流式）...");
+        output.textContent = "流式进度：\n";
+
+        let finalResult = null;
+        let streamError = null;
+
+        await postNDJSONStream("/generate_batch_stream", payload, (evt) => {
+          const line = eventToText(evt);
+          if (line) output.textContent += `- ${line}\n`;
+
+          if (evt.type === "progress" && evt.data?.stage === "sample_output" && evt.data?.readable_script) {
+            output.textContent += `\n========== 样本 ${evt.data.sample_index} ==========`;
+            output.textContent += `\n${evt.data.readable_script}\n`;
+          }
+
+          if (evt.type === "result") finalResult = evt.data;
+          if (evt.type === "error") streamError = evt.error || "未知错误";
+        });
+
+        if (streamError) {
+          setStatus("genStatus", `生成失败: ${streamError}`, false);
+          return;
+        }
+        if (!finalResult) {
+          setStatus("genStatus", "生成失败: 未收到最终结果", false);
+          return;
+        }
+
+        setProjectId(finalResult.project_id || currentProjectId);
+        const exports = finalResult.auto_exports || {};
+        setStatus("genStatus", `生成完成：${finalResult.sample_count} 篇样本，项目 ${currentProjectId}`);
+        output.textContent += "\n\n--- 自动导出 ---\n";
+        output.textContent += `internal_production.json: ${exports.internal_production_json || "N/A"}\n`;
+        output.textContent += `arena_submission.txt: ${exports.arena_submission_txt || "N/A"}\n`;
+      } catch (err) {
+        setStatus("genStatus", `生成失败: ${err.message}`, false);
+      } finally {
+        $("generateBtn").disabled = false;
+      }
+    };
+
+    $("exportBtn").onclick = async () => {
+      if (!currentProjectId) {
+        setStatus("genStatus", "当前没有项目，请先生成", false);
+        return;
+      }
+      const fmt = $("exportFormat").value;
+      try {
+        setStatus("genStatus", `导出中（${fmt}）...`);
+        const data = await getJSON(`/export/${currentProjectId}?format=${fmt}`);
+        setStatus("genStatus", `导出成功: ${data.export_path}`);
+        output.textContent += `\n\n导出结果：\n${JSON.stringify(data, null, 2)}\n`;
+      } catch (err) {
+        setStatus("genStatus", `导出失败: ${err.message}`, false);
+      }
+    };
+  </script>
+</body>
+</html>
